@@ -77,6 +77,13 @@ class OrganizationRepository(BaseRepository):
             .filter(OrganizationReviewWorkflow.status == status).all()
         return organizations
 
+    def get_org_with_status_using_org_id(self, org_id, status):
+        organizations = self.session.query(Organization, OrganizationReviewWorkflow) \
+            .join(OrganizationReviewWorkflow, OrganizationReviewWorkflow.org_row_id == Organization.row_id) \
+            .filter(Organization.org_id == org_id) \
+            .filter(OrganizationReviewWorkflow.status == status).all()
+        return organizations
+
     def export_org_with_status(self, organization, status):
         pending_approval_org = self.session.query(Organization) \
             .join(OrganizationReviewWorkflow, Organization.row_id == OrganizationReviewWorkflow.org_row_id) \
@@ -108,8 +115,8 @@ class OrganizationRepository(BaseRepository):
             self.session.commit()
 
     def get_organization_for_user(self, username):
-        subquery = self.session.query(Organization)\
-            .join(OrganizationMember, Organization.org_uuid == OrganizationMember.org_uuid)\
+        subquery = self.session.query(Organization) \
+            .join(OrganizationMember, Organization.org_uuid == OrganizationMember.org_uuid) \
             .filter(OrganizationMember.username == username).subquery()
         organizations = self.session.query(
             subquery.c.row_id.label("row_id"),
