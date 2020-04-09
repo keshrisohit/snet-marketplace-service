@@ -145,7 +145,22 @@ class ServiceFactory:
             pricing=group.get("pricing", []),
             endpoints=group.get("endpoints", {}),
             test_endpoints=group.get("test_endpoints", []),
-            daemon_address=group.get("daemon_adresses", []),
+            daemon_address=group.get("daemon_addresses", []),
+            free_calls=group.get("free_calls", 0),
+            free_call_signer_address=group.get("free_call_signer_address", None),
+        )
+
+    @staticmethod
+    def create_service_group_entity_model_for_service_metadata(org_uuid, service_uuid, group):
+        return ServiceGroup(
+            org_uuid=org_uuid,
+            service_uuid=service_uuid,
+            group_id=group["group_id"],
+            group_name=group.get("group_name", ""),
+            pricing=group.get("pricing", []),
+            endpoints=group.get("endpoints", {}),
+            test_endpoints=group.get("test_endpoints", []),
+            daemon_address=group.get("daemon_address", []),
             free_calls=group.get("free_calls", 0),
             free_call_signer_address=group.get("free_call_signer_address", None),
         )
@@ -157,7 +172,7 @@ class ServiceFactory:
             ServiceFactory.create_service_state_entity_model(org_uuid, service_uuid,
                                                              getattr(ServiceStatus, status).value)
         service_group_entity_model_list = [
-            ServiceFactory.create_service_group_entity_model("", service_uuid, group) for group in
+            ServiceFactory.create_service_group_entity_model_for_service_metadata("", service_uuid, group) for group in
             service_metadata.get("groups", [])]
         return Service(
             org_uuid, service_uuid, service_id, service_metadata.get("display_name", ""),
